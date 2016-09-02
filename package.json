@@ -1,6 +1,6 @@
 {
   "name": "aplazame",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "aplazame node sdk",
   "main": "sdk.js",
   "scripts": {
