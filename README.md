@@ -1,5 +1,6 @@
-Aplazame NodeJS
-===============
+![github-banner](https://cloud.githubusercontent.com/assets/2305833/18190336/5cb3f692-70c2-11e6-82ea-025dcd7f5b6e.png)
+
+#### Aplazame for NodeJS
 
 ``` sh
 node install aplazame --save
