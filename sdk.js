@@ -70,15 +70,14 @@ function apiRequest (privateKey, isSandbox) {
   return api;
 }
 
-function Aplazame (privateKey, sandbox) {
-
+function Aplazame (privateKey, isProduction) {
   this.privateKey = privateKey;
 
   this.api = apiRequest(privateKey, function () {
     return this.sandbox;
   }.bind(this));
 
-  this.sandbox = ( sandbox === undefined ? true : sandbox );
+  this.sandbox = !isProduction;
 }
 
 Aplazame.prototype.authorizeOrder = function (orderId) {

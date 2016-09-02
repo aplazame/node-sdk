@@ -5,13 +5,13 @@ var express = require('express'),
     template = nitro.template,
     file = nitro.file,
     app = express(),
-    layout = template( file.read('boilerplate/index.html') ),
+    layout = template( file.read('example/index.html') ),
     orders = {},
     aplazame = require('../sdk')( process.env.APLAZAME_PRIVATE_KEY );
 
 app.use(bodyParser.json());
 
-app.use('/static', express.static('boilerplate/static'));
+app.use('/static', express.static('example/static'));
 
 function CheckoutOrder (data) {
   this.id = 'order-' + Date.now();
@@ -39,11 +39,11 @@ var env = template.scope({
     });
 
 app.get('/', function (req, res) {
-  res.send( template( file.read('boilerplate/index.html'), env) );
+  res.send( template( file.read('example/index.html'), env) );
 });
 
 app.get('/checkout/data', function (req, res) {
-  var order = new CheckoutOrder( file.readJSON('boilerplate/checkout.json') );
+  var order = new CheckoutOrder( file.readJSON('example/checkout.json') );
   res.json( order.data );
 });
 

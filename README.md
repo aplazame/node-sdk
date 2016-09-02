@@ -5,6 +5,8 @@ Aplazame NodeJS
 node install aplazame --save
 ```
 
+Full example in: [Github](https://github.com/aplazame/node-sdk/tree/master/example)
+
 ``` js
 var aplazame = require('aplazame')('privateKey');
 
