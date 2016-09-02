@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Aplazame - Node SDK Boilerplate</title>
+
+    <script type="text/javascript" src="/static/boilerplate.js"
+            data-aplazame="${publicKey}" data-sandbox="true" defer></script>
+
+    <script type="text/javascript"
+            src="https://aplazame.com/static/aplazame.js"
+            data-aplazame="${publicKey}"
+            data-sandbox="true"
+            data-callback="onAplazame"
+            data-api-host="https://api-dev.aplazame.com"
+            defer></script>
+  </head>
+  <body>
+
+    <button type="button"
+      data-aplazame-button
+      data-amount="12050"
+      data-currency="EUR"
+      data-country="ES">Pagar con Aplazame</button>
+
+    <div data-aplazame-payment-info="">
+      Información acerca del pago con Aplazame
+      que aparecerá y se ocultará con el botón
+    </div>
+
+  </body>
+</html>
