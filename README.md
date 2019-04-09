@@ -9,9 +9,10 @@ node install @aplazame/node --save
 Full example in: [Github](https://github.com/aplazame/node-sdk/tree/master/example)
 
 ``` js
-var Aplazame = require('@aplazame/node')
-
-var aplazame = new Aplazame('merchant_private_key', false)
+var aplazame = require('@aplazame/node')({
+  access_token: 'merchant_private_key',
+  is_sandbox: true,
+})
 
 aplazame.post('/checkout', {
   merchant: {...},

@@ -4,16 +4,17 @@ require('dotenv').config()
 var fs = require('fs'),
     express = require('express'),
     bodyParser = require('body-parser'),
-    Aplazame = require('../sdk')
+    ejs = require('ejs')
 
 var app = express(),
-    ejs = require('ejs'),
-    index_html = fs.readFileSync('example/index.html', 'utf8')
+    index_html = fs.readFileSync('example/index.html', 'utf8'),
+    apz = require('../sdk')({
+      access_token: process.env.PRIVATE_KEY,
+      is_sandbox: true,
+    })
 
 console.log('PUBLIC_KEY', process.env.PUBLIC_KEY)
 console.log('PRIVATE_KEY', process.env.PRIVATE_KEY)
-
-var apz = new Aplazame(process.env.PRIVATE_KEY, true)
 
 app.use(bodyParser.json())
 

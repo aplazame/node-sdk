@@ -56,36 +56,39 @@ function makeRequest (_url, data, options) {
   })
 }
 
-function Aplazame (access_token, is_sandbox) {
+function aplazameHandler (access_token, is_sandbox) {
 
-  if( !access_token ) throw new Error('access_token missing')
+  var apz = {}
 
-  this.access_token = access_token
-  this.is_sandbox = Boolean(is_sandbox)
+  ;['get', 'delete'].forEach(function (method) {
+    apz[method] = function (path, options) {
+      options = options || {}
+      options.method = method
+      options.access_token = access_token
+      options.is_sandbox = is_sandbox
+      return makeRequest(api_origin + path, null, options).then(function (res) {
+        return res.data
+      })
+    }
+  })
+  
+  ;['post', 'put', 'patch'].forEach(function (method) {
+    apz[method] = function (path, data, options) {
+      options = options || {}
+      options.method = method
+      options.access_token = access_token
+      options.is_sandbox = is_sandbox
+      return makeRequest(api_origin + path, data, options).then(function (res) {
+        return res.data
+      })
+    }
+  })
+
+  return apz
 }
 
-;['get', 'delete'].forEach(function (method) {
-  Aplazame.prototype[method] = function (path, options) {
-    options = options || {}
-    options.method = method
-    options.access_token = this.access_token
-    options.is_sandbox = this.is_sandbox
-    return makeRequest(api_origin + path, null, options).then(function (res) {
-      return res.data
-    })
-  }
-})
-
-;['post', 'put', 'patch'].forEach(function (method) {
-  Aplazame.prototype[method] = function (path, data, options) {
-    options = options || {}
-    options.method = method
-    options.access_token = this.access_token
-    options.is_sandbox = this.is_sandbox
-    return makeRequest(api_origin + path, data, options).then(function (res) {
-      return res.data
-    })
-  }
-})
-
-module.exports = Aplazame
+module.exports = function aplazameSDK (options = {}) {
+  if( !options.access_token ) throw new Error('access_token missing')
+  
+  return aplazameHandler(options.access_token, options.is_sandbox)
+}
