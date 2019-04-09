@@ -13,8 +13,7 @@ var Aplazame = require('@aplazame/node')
 
 var aplazame = new Aplazame('merchant_private_key', false)
 
-// this example is using expressjs
-app.post('order', {
+aplazame.post('/checkout', {
   merchant: {...},
   order: {...},
   customer: {...},
