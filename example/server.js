@@ -1,14 +1,14 @@
 
 require('dotenv').config()
 
-var express = require('express'),
+var fs = require('fs'),
+    express = require('express'),
     bodyParser = require('body-parser'),
-    nitro = require('nitro'),
-    template = nitro.template,
-    file = nitro.file,
-    app = express(),
-    renderIndex = template( file.read('example/index.html') ),
     Aplazame = require('../sdk')
+
+var app = express(),
+    ejs = require('ejs'),
+    index_html = fs.readFileSync('example/index.html', 'utf8')
 
 console.log('PUBLIC_KEY', process.env.PUBLIC_KEY)
 console.log('PRIVATE_KEY', process.env.PRIVATE_KEY)
@@ -20,13 +20,13 @@ app.use(bodyParser.json())
 app.use('/static', express.static('example/static'))
 
 app.get('/', function (req, res) {
-  res.send( renderIndex({
+  res.send( ejs.render(index_html, {
     public_key: process.env.PUBLIC_KEY
   }) )
 })
 
 app.get('/checkout/order', function (req, res) {
-  var checkout_data = file.readJSON('example/checkout.json')
+  var checkout_data = JSON.parse( fs.readFileSync('example/checkout.json', 'utf8') )
   checkout_data.order.id = 'order-' + Date.now()
 
   apz.post('/checkout', checkout_data ).then(function (order) {

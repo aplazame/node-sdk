@@ -15,8 +15,8 @@
   "devDependencies": {
     "body-parser": "1.18.3",
     "dotenv": "^7.0.0",
+    "ejs": "2.6.1",
     "express": "4.16.4",
-    "nitro": "2.2.13",
     "node-fetch": "2.3.0"
   },
   "dependencies": {},
