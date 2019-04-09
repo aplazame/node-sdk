@@ -74,7 +74,9 @@ function Aplazame (access_token, is_sandbox) {
     options.method = method
     options.access_token = access_token
     options.is_sandbox = is_sandbox
-    return makeRequest(path, null, options)
+    return makeRequest(path, null, options).then(function (res) {
+      return res.data
+    })
   }
 })
 
