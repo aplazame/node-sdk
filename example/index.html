@@ -4,16 +4,12 @@
     <meta charset="utf-8">
     <title>Aplazame - Node SDK Boilerplate</title>
 
-    <script type="text/javascript" src="/static/example.js"
-            data-aplazame="${publicKey}" data-sandbox="true" defer></script>
+    <script type="text/javascript" src="/static/example.js" defer async></script>
 
     <script type="text/javascript"
-            src="https://aplazame.com/static/aplazame.js"
-            data-aplazame="${publicKey}"
-            data-sandbox="true"
-            data-callback="onAplazame"
+            src="https://cdn-dev.aplazame.com/aplazame.js?public-key=${public_key}&sandbox=true"
             data-api-host="https://api-dev.aplazame.com"
-            defer></script>
+            defer async></script>
   </head>
   <body>
 

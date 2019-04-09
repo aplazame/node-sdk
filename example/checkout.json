@@ -1,7 +1,7 @@
 {
   "toc": true,
   "merchant": {
-    "confirmation_url": "/checkout/confirm",
+    "notification_url": "http://localhost:3000/checkout/confirm",
     "cancel_url": "/demo-cancel.html",
     "success_url": "/demo-success.html"
   },

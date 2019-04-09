@@ -1,11 +1,14 @@
 
-.PHONY: release
+.PHONY: dev release
 
 git_branch := $(shell git rev-parse --abbrev-ref HEAD)
 
 ifndef NPM_VERSION
   export NPM_VERSION=patch
 endif
+
+dev:
+	node example/server.js
 
 npm.publish:
 	git pull --tags
