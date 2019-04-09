@@ -1,11 +1,4 @@
 
-// function extend (src, dest) {
-//   for( var key in src ) {
-//     dest[key] = src[key];
-//   }
-//   return dest;
-// }
-
 var protocols = {
   'http:': require('http'),
   'https:': require('https'),
