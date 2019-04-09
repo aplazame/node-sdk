@@ -1,6 +1,6 @@
 {
   "name": "@aplazame/node",
-  "version": "0.2,0",
+  "version": "0.3.0",
   "description": "aplazame node sdk",
   "main": "sdk.js",
   "scripts": {
@@ -13,10 +13,10 @@
   "author": "Jesús Germade <jesus@aplazame.com>",
   "license": "GPL-3.0",
   "devDependencies": {
-    "body-parser": "1.15.2",
-    "express": "4.14.0",
-    "nitro": "1.9.11",
-    "node-fetch": "1.6.0"
+    "body-parser": "1.18.3",
+    "express": "4.16.4",
+    "nitro": "2.2.13",
+    "node-fetch": "2.3.0"
   },
   "dependencies": {},
   "repository": {
