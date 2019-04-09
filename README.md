@@ -3,36 +3,24 @@
 #### Aplazame SDK for NodeJS
 
 ``` sh
-node install aplazame --save
+node install @aplazame/node --save
 ```
 
 Full example in: [Github](https://github.com/aplazame/node-sdk/tree/master/example)
 
 ``` js
-var aplazame = require('aplazame')('privateKey');
+var Aplazame = require('@aplazame/node')
+
+var aplazame = new Aplazame('merchant_private_key', false)
 
 // this example is using expressjs
-app.post('/checkout/confirm', function (req, res) {
-  var checkout_token = req.body.checkout_token,
-      order = CheckoutOrder.get(checkout_token);
+app.post('order', {
+  merchant: {...},
+  order: {...},
+  customer: {...},
+  billing: {...},
+  shipping: {...},
+}).then(function (order) {
 
-  if( !order ) {
-    res.status(404).end();
-  }
-
-  aplazame.authorizeOrder(checkout_token)
-    .then(function (response) {
-      order.confirm().then(function () {
-        res.status(204).end();
-      });
-    }, function (reason) {
-      console.log('authorize error', reason);
-      // [502 Bad Gateway] The server was acting as a gateway or proxy
-      //   and received an invalid response from the upstream server.
-      res.status(502).end();
-    }).catch(function (err) {
-      console.log('authorize error (2)', err);
-    });
-});
-
+})
 ```

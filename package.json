@@ -1,6 +1,6 @@
 {
-  "name": "aplazame",
-  "version": "0.1.3",
+  "name": "@aplazame/node",
+  "version": "0.2,0",
   "description": "aplazame node sdk",
   "main": "sdk.js",
   "scripts": {
@@ -13,17 +13,12 @@
   "author": "Jesús Germade <jesus@aplazame.com>",
   "license": "GPL-3.0",
   "devDependencies": {
-    "body-parser": "^1.15.2",
-    "express": "^4.14.0",
-    "nitro": "^1.9.11",
-    "node-fetch": "^1.6.0"
+    "body-parser": "1.15.2",
+    "express": "4.14.0",
+    "nitro": "1.9.11",
+    "node-fetch": "1.6.0"
   },
-  "dependencies": {
-    "body-parser": "^1.15.2",
-    "express": "^4.14.0",
-    "nitro": "^1.9.11",
-    "node-fetch": "^1.6.0"
-  },
+  "dependencies": {},
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/aplazame/node-sdk.git"

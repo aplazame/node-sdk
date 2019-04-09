@@ -1,91 +1,91 @@
 
-function extend (src, dest) {
-  for( var key in src ) {
-    dest[key] = src[key];
+// function extend (src, dest) {
+//   for( var key in src ) {
+//     dest[key] = src[key];
+//   }
+//   return dest;
+// }
+
+var protocols = {
+  'http:': require('http'),
+  'https:': require('https'),
+}
+
+function makeRequest (_url, data, options) {
+
+  var parsed_url = new URL(_url)
+
+  return new Promise(function (resolve, reject) {
+
+    var requestConfig = {
+      host: parsed_url.hostname,
+      path: parsed_url.path,
+      method: options.method || 'GET',
+      headers: {
+        Accept: 'application/vnd.aplazame' + ( options.is_sandbox ? '.sandbox' : '' ) + '.v1+json',
+        Authorization: `Bearer ${ options.access_token }`,
+        Host: 'api.aplazame.com',
+      },
+    }
+
+    var req = protocols[parsed_url.protocol].request(requestConfig, function (res) {
+      var result_body = ''
+
+      res.on('data', function (chunk) {
+        result_body += chunk
+      })
+
+      res.on('end', function () {
+        resolve({
+          data: JSON.parse(result_body),
+          status: res.statusCode,
+          statusText: 'OK',
+          headers: res.headers,
+        })
+      })
+
+      res.on('error', function(_err) {
+        reject({ ok: false, status: res.statusCode, statusText: res.statusMessage })
+      })
+    })
+
+    req.on('error', function (e) {
+      reject(e)
+    })
+
+    if( data ) req.write(data)
+
+    req.end()
+
+  })
+}
+
+function Aplazame (access_token, is_sandbox) {
+
+  if( !access_token ) throw new Error('access_token missing')
+
+  this.access_token = access_token
+  this.is_sandbox = Boolean(is_sandbox)
+}
+
+['get', 'delete'].forEach(function (method) {
+  Aplazame.prototype[method] = function (path, options) {
+    options = options || {}
+    options.method = method
+    options.access_token = access_token
+    options.is_sandbox = is_sandbox
+    return makeRequest(path, null, options)
   }
-  return dest;
-}
+})
 
-function apiRequest (privateKey, isSandbox) {
+['post', 'put', 'patch'].forEach(function (method) {
+  Aplazame.prototype[method] = function (path, data, options) {
+    options = options || {}
+    options.method = method
+    options.access_token = access_token
+    options.is_sandbox = is_sandbox
+    return makeRequest(path, data, options)
+  }
+})
 
-  var api = function (path, data, options) {
-    var https = require('https');
-
-    return new Promise(function (resolve, reject) {
-
-      var requestConfig = {
-        host: 'api-dev.aplazame.com',
-        path: path,
-        method: options.method || 'GET',
-        headers: {
-          Accept: 'application/vnd.aplazame' + ( isSandbox() ? '.sandbox' : '' ) + '.v1+json',
-          Authorization: `Bearer ${privateKey}`,
-          Host: 'api-dev.aplazame.com'
-        }
-      };
-
-      console.log('requestConfig:', JSON.stringify(requestConfig, null, '\t') );
-
-      var req = https.request(requestConfig, function (res) {
-        var str = '';
-
-        res.on('data', function (chunk) {
-          str += chunk;
-        });
-
-        res.on('end', function () {
-          resolve({
-            data: JSON.stringify(str),
-            status: res.statusCode,
-            headers: res.headers
-          });
-        });
-      });
-
-      req.on('error', function (e) {
-        reject(e);
-      });
-
-      req.end()
-
-    });
-  };
-
-  ['get', 'delete'].forEach(function (method) {
-    api[method] = function (path, options) {
-      options = options || {};
-      options.method = method;
-      return api(path, null, options);
-    };
-  });
-
-  ['post', 'put', 'patch'].forEach(function (method) {
-    api[method] = function (path, data, options) {
-      options = options || {};
-      options.method = method;
-      return api(path, data, options);
-    };
-  });
-
-  return api;
-}
-
-function Aplazame (privateKey, isProduction) {
-  this.privateKey = privateKey;
-
-  this.api = apiRequest(privateKey, function () {
-    return this.sandbox;
-  }.bind(this));
-
-  this.sandbox = !isProduction;
-}
-
-Aplazame.prototype.authorizeOrder = function (orderId) {
-  return this.api.post(`/orders/${orderId}/authorize`, {});
-};
-
-function aplazameSDK (privateKey) {
-  return new Aplazame(privateKey);
-}
-
-module.exports = aplazameSDK;
+module.exports = Aplazame
