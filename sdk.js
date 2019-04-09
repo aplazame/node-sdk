@@ -24,8 +24,6 @@ function makeRequest (_url, data, options) {
       },
     }
 
-    console.log('config', config)
-
     var req = protocols[parsed_url.protocol].request(config, function (res) {
       var result_body = ''
 
