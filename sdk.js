@@ -14,7 +14,7 @@ function makeRequest (_url, data, options) {
 
     var config = {
       host: parsed_url.hostname,
-      path: parsed_url.pathname,
+      path: parsed_url.pathname + parsed_url.search,
       method: options.method || 'GET',
       headers: {
         Accept: 'application/vnd.aplazame' + ( options.is_sandbox ? '.sandbox' : '' ) + '.v1+json',
