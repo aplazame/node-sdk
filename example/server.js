@@ -37,28 +37,81 @@ app.get('/checkout/order', function (req, res) {
 })
 
 app.post('/checkout/confirm', function (req, res) {
-  var checkout_token = req.body.checkout_token,
-      order = CheckoutOrder.get(checkout_token);
 
-  if( !order ) {
-    res.status(404).end();
+  function do_payment_cancel(mid) {
+    try {
+      // Update 'mid' order payment as CANCELED
+    } catch (e) {
+      // If something was wrong, return FALSE
+      return false
+    }
+    return true
   }
 
-  aplazame.authorizeOrder(checkout_token)
-    .then(function (response) {
-      order.confirm().then(function () {
-        res.status(204).end()
-      })
-    }, function (reason) {
-      console.log('authorize error', reason)
-      // [502 Bad Gateway] The server was acting as a gateway or proxy
-      //   and received an invalid response from the upstream server.
-      res.status(502).end()
-    }).catch(function (err) {
-      console.log('authorize error (2)', err)
-    })
-})
+  function do_payment_pending(mid) {
+    try {
+      // Update 'mid' order payment as PENDING
+    } catch (e) {
+      // If something was wrong, return FALSE
+      return false
+    }
+    return true
+  }
 
+  function do_payment_accept(mid) {
+    try {
+      // Update 'mid' order payment as ACCEPTED
+    } catch (e) {
+      // If something was wrong, return FALSE
+      return false
+    }
+    return true
+  }
+
+  function response(status) {
+    res.status(200).send({status: status})
+  }
+
+  function confirm(payload) {
+    if (!payload) {
+      response('Payload is malformed')
+    }
+    if (!payload.mid) {
+      response('"mid" not provided')
+    }
+    var mid = payload.mid
+
+    switch (payload.status) {
+      case 'pending':
+        switch (payload.status_reason) {
+          case 'challenge_required':
+            if (!do_payment_pending(mid)) {
+              response('ko')
+            }
+            break
+          case 'confirmation_required':
+            if (!do_payment_accept(mid)) {
+              response('ko')
+            }
+            break
+        }
+        break
+      case 'ko':
+        if (!do_payment_cancel(mid)) {
+          response('ko')
+        }
+        break
+    }
+
+    response('ok')
+  }
+
+  if (process.env.PRIVATE_KEY !== req.query.access_token) {
+    res.status(403).end()
+  }
+
+  confirm(req.body)
+})
 
 app.listen(3000, function () {
   console.log('Example app listening on port 3000!')
