@@ -4,7 +4,8 @@ require('dotenv').config()
 var fs = require('fs'),
     express = require('express'),
     bodyParser = require('body-parser'),
-    ejs = require('ejs')
+    ejs = require('ejs'),
+    doConfirmation = require('./do-confirmation')
 
 var app = express(),
     index_html = fs.readFileSync('example/index.html', 'utf8'),
@@ -37,80 +38,17 @@ app.get('/checkout/order', function (req, res) {
 })
 
 app.post('/checkout/confirm', function (req, res) {
-
-  function do_payment_cancel(mid) {
-    try {
-      // Update 'mid' order payment as CANCELED
-    } catch (e) {
-      // If something was wrong, return FALSE
-      return false
-    }
-    return true
+  if( process.env.PRIVATE_KEY !== req.query.access_token ) {
+    return res.status(403).end()
   }
 
-  function do_payment_pending(mid) {
-    try {
-      // Update 'mid' order payment as PENDING
-    } catch (e) {
-      // If something was wrong, return FALSE
-      return false
-    }
-    return true
-  }
-
-  function do_payment_accept(mid) {
-    try {
-      // Update 'mid' order payment as ACCEPTED
-    } catch (e) {
-      // If something was wrong, return FALSE
-      return false
-    }
-    return true
-  }
-
-  function response(status) {
-    res.status(200).send({status: status})
-  }
-
-  function confirm(payload) {
-    if (!payload) {
-      response('Payload is malformed')
-    }
-    if (!payload.mid) {
-      response('"mid" not provided')
-    }
-    var mid = payload.mid
-
-    switch (payload.status) {
-      case 'pending':
-        switch (payload.status_reason) {
-          case 'challenge_required':
-            if (!do_payment_pending(mid)) {
-              response('ko')
-            }
-            break
-          case 'confirmation_required':
-            if (!do_payment_accept(mid)) {
-              response('ko')
-            }
-            break
-        }
-        break
-      case 'ko':
-        if (!do_payment_cancel(mid)) {
-          response('ko')
-        }
-        break
-    }
-
-    response('ok')
-  }
-
-  if (process.env.PRIVATE_KEY !== req.query.access_token) {
-    res.status(403).end()
-  }
-
-  confirm(req.body)
+  doConfirmation(req.body)
+    .then(function () {
+      res.status(200).send({ status: 'ok' })
+    })
+    .catch(function (reason) {
+      res.status(200).send({ status: 'ko', reason })
+    })
 })
 
 app.listen(3000, function () {
