@@ -38,17 +38,23 @@ app.get('/checkout/order', function (req, res) {
 })
 
 app.post('/checkout/confirm', function (req, res) {
+  console.log('\nPOST /checkout/confirm\n', req.originalUrl, '\n', req.body)
+
   if( process.env.PRIVATE_KEY !== req.query.access_token ) {
     return res.status(403).end()
   }
 
+  try{
   doConfirmation(req.body)
     .then(function () {
-      res.status(200).send({ status: 'ok' })
+      res.status(200).send({ status: 'ok' }).end()
     })
     .catch(function (reason) {
-      res.status(200).send({ status: 'ko', reason })
+      res.status(200).send({ status: 'ko', reason }).end()
     })
+  } catch(err) {
+    console.error(err)
+  }
 })
 
 app.listen(3000, function () {
