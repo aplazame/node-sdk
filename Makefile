@@ -7,7 +7,10 @@ ifndef NPM_VERSION
   export NPM_VERSION=patch
 endif
 
-dev:
+node_modules:
+	npm install
+
+dev: node_modules
 	node example/server.js
 
 npm.publish:

@@ -4,6 +4,7 @@ require('dotenv').config()
 var fs = require('fs'),
     express = require('express'),
     bodyParser = require('body-parser'),
+    ngrok = require('ngrok'),
     ejs = require('ejs'),
     doConfirmation = require('./do-confirmation')
 
@@ -27,14 +28,19 @@ app.get('/', function (req, res) {
   }) )
 })
 
+var ngrok_url = null
+
 app.get('/checkout/order', function (req, res) {
   var checkout_data = JSON.parse( fs.readFileSync('example/checkout.json', 'utf8') )
   checkout_data.order.id = 'order-' + Date.now()
+  checkout_data.merchant.notification_url = ngrok_url + '/checkout/confirm'
 
-  apz.post('/checkout', checkout_data ).then(function (order) {
-    console.log('order created', order);
-    res.json( order.id );
-  }, console.error)
+  apz
+    .post('/checkout', checkout_data )
+    .then(function (order) {
+      console.log('order created', order);
+      res.json( order.id );
+    }, console.error)
 })
 
 app.post('/checkout/confirm', function (req, res) {
@@ -57,6 +63,10 @@ app.post('/checkout/confirm', function (req, res) {
   }
 })
 
-app.listen(3000, function () {
-  console.log('Example app listening on port 3000!')
-})
+ngrok.connect(3000)
+  .then(function (_ngrok_url) {
+    ngrok_url = _ngrok_url
+    app.listen(3000, function () {
+      console.log('Example app listening on:', _ngrok_url)
+    })
+  })
