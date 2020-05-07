@@ -3,6 +3,11 @@
 
 git_branch := $(shell git rev-parse --abbrev-ref HEAD)
 
+ifeq ($(wildcard ./.env),./.env)
+include .env
+export $(shell sed 's/=.*//' .env)
+endif
+
 ifndef NPM_VERSION
   export NPM_VERSION=patch
 endif

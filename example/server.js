@@ -1,22 +1,30 @@
 
-require('dotenv').config()
+const fs = require('fs'),
+      { promisify } = require('util')
 
-var fs = require('fs'),
-    express = require('express'),
-    bodyParser = require('body-parser'),
-    ngrok = require('ngrok'),
-    ejs = require('ejs'),
-    doConfirmation = require('./do-confirmation')
+const _readFile = promisify(fs.readFile)
 
-var app = express(),
-    index_html = fs.readFileSync('example/index.html', 'utf8'),
-    apz = require('../sdk')({
-      access_token: process.env.PRIVATE_KEY,
-      is_sandbox: true,
-    })
+const express = require('express'),
+      bodyParser = require('body-parser'),
+      ngrok = require('ngrok'),
+      ejs = require('ejs'),
+      doConfirmation = require('./do-confirmation')
 
-console.log('PUBLIC_KEY', process.env.PUBLIC_KEY)
-console.log('PRIVATE_KEY', process.env.PRIVATE_KEY)
+const app = express(),
+      index_html = fs.readFileSync('example/index.ejs', 'utf8'),
+      apz = require('../sdk')({
+        access_token: process.env.PRIVATE_KEY,
+        is_sandbox: true,
+      })
+
+const {
+  APLAZAME_JS_URL = 'https://cdn.aplazame.com/aplazame.js',
+  PUBLIC_KEY,
+  PRIVATE_KEY,
+} = process.env
+
+console.log('PUBLIC_KEY', PUBLIC_KEY)
+console.log('PRIVATE_KEY', PRIVATE_KEY)
 
 app.use(bodyParser.json())
 
@@ -24,29 +32,29 @@ app.use('/static', express.static('example/static'))
 
 app.get('/', function (req, res) {
   res.send( ejs.render(index_html, {
-    public_key: process.env.PUBLIC_KEY
+    PUBLIC_KEY,
+    APLAZAME_JS_URL,
   }) )
 })
 
 var ngrok_url = null
 
-app.get('/checkout/order', function (req, res) {
-  var checkout_data = JSON.parse( fs.readFileSync('example/checkout.json', 'utf8') )
-  checkout_data.order.id = 'order-' + Date.now()
+app.get('/checkout/order', async function (req, res) {
+  var checkout_data = JSON.parse( await _readFile('example/checkout.json', 'utf8') )
+
+  checkout_data.order.id = 'order_' + Date.now()
   checkout_data.merchant.notification_url = ngrok_url + '/checkout/confirm'
 
-  apz
-    .post('/checkout', checkout_data )
-    .then(function (order) {
-      console.log('order created', order);
-      res.json( order.id );
-    }, console.error)
+  const order = await apz.post('/checkout', checkout_data )
+
+  console.log('order created', order)
+  res.json( order.id )
 })
 
 app.post('/checkout/confirm', function (req, res) {
   console.log('\nPOST /checkout/confirm\n', req.originalUrl, '\n', req.body)
 
-  if( process.env.PRIVATE_KEY !== req.query.access_token ) {
+  if( PRIVATE_KEY !== req.query.access_token ) {
     return res.status(403).end()
   }
 
@@ -63,10 +71,10 @@ app.post('/checkout/confirm', function (req, res) {
   }
 })
 
-ngrok.connect(3000)
+ngrok.connect(3001)
   .then(function (_ngrok_url) {
     ngrok_url = _ngrok_url
-    app.listen(3000, function () {
+    app.listen(3001, function () {
       console.log('Example app listening on:', _ngrok_url)
     })
   })
