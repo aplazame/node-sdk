@@ -1,30 +1,39 @@
 
-var protocols = {
+const path = require('path')
+
+const protocols = {
   'http:': require('http'),
   'https:': require('https'),
 }
 
-var api_origin = process.env.APLAZAME_API_ORIGIN || 'https://api.aplazame.com'
+const {
+  APLAZAME_API_ORIGIN = 'https://api.aplazame.com',
+} = process.env
 
 function makeRequest (_url, data, options) {
 
-  var parsed_url = new URL(_url)
+  var {
+    protocol,
+    hostname,
+    pathname,
+    search,
+  } = new URL(_url)
 
   return new Promise(function (resolve, reject) {
 
     var config = {
-      host: parsed_url.hostname,
-      path: parsed_url.pathname + parsed_url.search,
+      host: hostname,
+      path: pathname + search,
       method: options.method || 'GET',
       headers: {
         Accept: 'application/vnd.aplazame' + ( options.is_sandbox ? '.sandbox' : '' ) + '.v1+json',
         Authorization: `Bearer ${ options.access_token }`,
         'Content-Type': 'application/json',
-        Host: parsed_url.hostname,
+        Host: hostname,
       },
     }
 
-    var req = protocols[parsed_url.protocol].request(config, function (res) {
+    var req = protocols[protocol].request(config, function (res) {
       var result_body = ''
 
       res.on('data', function (chunk) {
@@ -61,26 +70,22 @@ function aplazameHandler (access_token, is_sandbox) {
   var apz = {}
 
   ;['get', 'delete'].forEach(function (method) {
-    apz[method] = function (path, options) {
+    apz[method] = (req_path, options) => {
       options = options || {}
       options.method = method
       options.access_token = access_token
       options.is_sandbox = is_sandbox
-      return makeRequest(api_origin + path, null, options).then(function (res) {
-        return res.data
-      })
+      return makeRequest(path.join(APLAZAME_API_ORIGIN, req_path), null, options).then( (res) => res.data)
     }
   })
   
   ;['post', 'put', 'patch'].forEach(function (method) {
-    apz[method] = function (path, data, options) {
+    apz[method] = (req_path, data, options) => {
       options = options || {}
       options.method = method
       options.access_token = access_token
       options.is_sandbox = is_sandbox
-      return makeRequest(api_origin + path, data, options).then(function (res) {
-        return res.data
-      })
+      return makeRequest(path.join(APLAZAME_API_ORIGIN, req_path), data, options).then( (res) => res.data)
     }
   })
 
