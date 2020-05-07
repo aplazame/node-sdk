@@ -58,7 +58,7 @@ function makeRequest (_url, data, options) {
       reject(e)
     })
 
-    if( data ) req.write(JSON.stringify(data))
+    if (data) req.write(JSON.stringify(data))
 
     req.end()
 
@@ -67,7 +67,8 @@ function makeRequest (_url, data, options) {
 
 function aplazameHandler (access_token, is_sandbox) {
 
-  var apz = {}
+  const apz = {}
+  const originPath = (req_path) => path.join(APLAZAME_API_ORIGIN, req_path)
 
   ;['get', 'delete'].forEach(function (method) {
     apz[method] = (req_path, options) => {
@@ -75,7 +76,11 @@ function aplazameHandler (access_token, is_sandbox) {
       options.method = method
       options.access_token = access_token
       options.is_sandbox = is_sandbox
-      return makeRequest(path.join(APLAZAME_API_ORIGIN, req_path), null, options).then( (res) => res.data)
+      return makeRequest(
+        originPath(req_path),
+        null,
+        options
+      ).then( (res) => res.data )
     }
   })
   
@@ -85,7 +90,11 @@ function aplazameHandler (access_token, is_sandbox) {
       options.method = method
       options.access_token = access_token
       options.is_sandbox = is_sandbox
-      return makeRequest(path.join(APLAZAME_API_ORIGIN, req_path), data, options).then( (res) => res.data)
+      return makeRequest(
+        originPath(req_path),
+        data,
+        options,
+      ).then( (res) => res.data )
     }
   })
 
