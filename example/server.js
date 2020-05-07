@@ -39,7 +39,7 @@ app.get('/', function (req, res) {
 
 var ngrok_url = null
 
-app.get('/checkout/order', async function (req, res) {
+app.get('/checkout/order', async (req, res) => {
   var checkout_data = JSON.parse( await _readFile('example/checkout.json', 'utf8') )
 
   checkout_data.order.id = 'order_' + Date.now()
@@ -51,7 +51,7 @@ app.get('/checkout/order', async function (req, res) {
   res.json( order.id )
 })
 
-app.post('/checkout/confirm', function (req, res) {
+app.post('/checkout/confirm', async (req, res) => {
   console.log('\nPOST /checkout/confirm\n', req.originalUrl, '\n', req.body)
 
   if( PRIVATE_KEY !== req.query.access_token ) {
@@ -59,13 +59,13 @@ app.post('/checkout/confirm', function (req, res) {
   }
 
   try{
-  doConfirmation(req.body)
-    .then(function () {
-      res.status(200).send({ status: 'ok' }).end()
-    })
-    .catch(function (reason) {
-      res.status(200).send({ status: 'ko', reason }).end()
-    })
+    await doConfirmation(req.body)
+      .then(function () {
+        res.status(200).send({ status: 'ok' }).end()
+      })
+      .catch(function (reason) {
+        res.status(200).send({ status: 'ko', reason }).end()
+      })
   } catch(err) {
     console.error(err)
   }

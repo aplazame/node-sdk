@@ -15,14 +15,12 @@
     button_el.setAttribute('disabled', '')
 
     fetch('/checkout/order')
-      .then(function (res) {
-        return res.json()
-      })
+      .then((res) => res.json())
       .then(function (checkout_data) {
         console.log('checkout', checkout_data)
 
         aplazame.checkout(checkout_data, {
-          onSuccess: onSuccess,
+          onSuccess,
           onDismiss: onError,
         })
 
