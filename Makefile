@@ -19,10 +19,9 @@ dev: node_modules
 	node example/server.js
 
 npm.publish:
-	git pull --tags
+	git pull origin $(git_branch) --tags
 	npm version ${NPM_VERSION}
-	git push origin $(git_branch)
-	git push --tags
+	git push origin $(git_branch) --tags
 	npm publish --access public
 
 github.release: export REPOSITORY=aplazame/node-sdk
