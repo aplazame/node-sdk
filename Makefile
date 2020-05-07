@@ -1,4 +1,5 @@
 
+.SILENT:
 .PHONY: dev release
 
 git_branch := $(shell git rev-parse --abbrev-ref HEAD)
