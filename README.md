@@ -3,7 +3,7 @@
 #### Aplazame SDK for NodeJS
 
 ``` sh
-node install @aplazame/node --save
+npm install @aplazame/node --save
 ```
 
 Full example in: [Github](https://github.com/aplazame/node-sdk/tree/master/example)
