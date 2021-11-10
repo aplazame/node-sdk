@@ -5,34 +5,35 @@ const fs = require('fs'),
 const _readFile = promisify(fs.readFile)
 
 const express = require('express'),
-      bodyParser = require('body-parser'),
       ngrok = require('ngrok'),
       ejs = require('ejs'),
       doConfirmation = require('./do-confirmation')
 
 const app = express(),
-      index_html = fs.readFileSync('example/index.ejs', 'utf8'),
-      apz = require('../sdk')({
-        access_token: process.env.PRIVATE_KEY,
+      index_html = fs.readFileSync('example/index.ejs', 'utf8')
+
+const aplazameSDK = require('../sdk')
+const APZ = aplazameSDK({
+        access_token: process.env.APLAZAME_PRIVATE_KEY,
         is_sandbox: true,
       })
 
 const {
   APLAZAME_JS_URL = 'https://cdn.aplazame.com/aplazame.js',
-  PUBLIC_KEY,
-  PRIVATE_KEY,
+  APLAZAME_PUBLIC_KEY,
+  APLAZAME_PRIVATE_KEY,
 } = process.env
 
-console.log('PUBLIC_KEY', PUBLIC_KEY)
-console.log('PRIVATE_KEY', PRIVATE_KEY)
+console.log('APLAZAME_PUBLIC_KEY', APLAZAME_PUBLIC_KEY)
+console.log('APLAZAME_PRIVATE_KEY', APLAZAME_PRIVATE_KEY)
 
-app.use(bodyParser.json())
+app.use(express.json())
 
 app.use('/static', express.static('example/static'))
 
 app.get('/', function (req, res) {
   res.send( ejs.render(index_html, {
-    PUBLIC_KEY,
+    APLAZAME_PUBLIC_KEY,
     APLAZAME_JS_URL,
   }) )
 })
@@ -45,7 +46,7 @@ app.get('/checkout/order', async (req, res) => {
   checkout_data.order.id = 'order_' + Date.now()
   checkout_data.merchant.notification_url = ngrok_url + '/checkout/confirm'
 
-  const order = await apz.post('/checkout', checkout_data )
+  const order = await APZ.post('/checkout', checkout_data )
 
   console.log('order created', order)
   res.json( order.id )
@@ -54,7 +55,7 @@ app.get('/checkout/order', async (req, res) => {
 app.post('/checkout/confirm', async (req, res) => {
   console.log('\nPOST /checkout/confirm\n', req.originalUrl, '\n', req.body)
 
-  if( PRIVATE_KEY !== req.query.access_token ) {
+  if( APLAZAME_PRIVATE_KEY !== req.query.access_token ) {
     return res.status(403).end()
   }
 

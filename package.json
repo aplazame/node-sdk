@@ -11,13 +11,12 @@
     "sdk"
   ],
   "author": "Jesús Germade <jesus@aplazame.com>",
-  "license": "GPL-3.0",
+  "license": "MIT",
   "devDependencies": {
-    "body-parser": "1.18.3",
     "ejs": "2.6.1",
     "express": "4.16.4",
-    "node-fetch": "2.3.0",
-    "ngrok": "^3.2.7"
+    "ngrok": "^3.2.7",
+    "node-fetch": "^2.3.0"
   },
   "dependencies": {},
   "repository": {
