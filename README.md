@@ -28,9 +28,9 @@ aplazame.post('/checkout', {
 #### Launching example
 
 ``` sh
-  npm install
-  
-  APLAZAME_PUBLIC_KEY=2399abc3f1f5ba3ab94s9s87ts987st9s87t9s8s \
-	APLAZAME_PRIVATE_KEY=dce981b80s098s098sy09s8y0s98yss9syt9s78s \
-	node example/server.js
+npm install
+
+APLAZAME_PUBLIC_KEY=2399abc3f1f5ba3ab94s9s87ts987st9s87t9s8s \
+APLAZAME_PRIVATE_KEY=dce981b80s098s098sy09s8y0s98yss9syt9s78s \
+node example/server.js
 ```

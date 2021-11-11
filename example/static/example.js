@@ -1,5 +1,5 @@
 
-(window.aplazame = window.aplazame || []).push(function (aplazame) {
+(window.aplazame ||= []).push(function (aplazame) {
   var onSuccess = function () {
         console.log('confirmed!');
       },
