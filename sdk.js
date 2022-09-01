@@ -14,7 +14,7 @@ const reduceArgs = fn => {
 }
 const joinPaths = reduceArgs((a, b) => a.replace(/\/$/, '') + '/' + b.replace(/^\//, ''))
 
-const protocols = {
+const http = {
   'http:': require('http'),
   'https:': require('https'),
 }
@@ -30,6 +30,7 @@ function makeRequest ({
   is_sandbox = false,
   body = null,
   json = null,
+  headers = {},
 }) {
 
   const {
@@ -46,25 +47,40 @@ function makeRequest ({
       path: pathname + search,
       method: method.toUpperCase(),
       headers: {
+        ...headers,
         Accept: `application/vnd.aplazame${ is_sandbox ? '.sandbox' : '' }.v1+json`,
         Authorization: `Bearer ${ access_token }`,
         'Content-Type': 'application/json',
         Host: hostname,
       },
+      insecureHTTPParser: true,
     }
 
-    var req = protocols[protocol].request(config, res => {
-      var result_body = ''
+    console.log('request', config)
 
+    var req = http[protocol].request(config, res => {
       res.setEncoding('utf8')
-
-      res.on('data', chunk => {
-        result_body += chunk
-      })
-
+      
+      const chunks = []
+      res.on('data', chunk => chunks.push(chunk))
       res.on('end', () => {
+        const response_text = chunks.join('')
+        let data = res.headers['content-type'] === 'application/json'
+          ? JSON.parse(response_text)
+          : response_text
+
+        if (res.statusCode < 200 || res.statusCode >= 300) {
+          reject({
+            ok: false,
+            status: res.statusCode,
+            statusText: res.statusMessage,
+            body: data,
+          })
+          return
+        }
+
         resolve({
-          data: JSON.parse(result_body),
+          data,
           status: res.statusCode,
           statusText: 'OK',
           headers: res.headers,
@@ -78,38 +94,38 @@ function makeRequest ({
 
     req.on('error', e => reject(e))
 
-    if (json !== null) req.write(JSON.stringify(json))
-    else if(body !== null) req.write(body)
-
+    req.write(json !== null ? JSON.stringify(json) : (body || ''))
     req.end()
-
   })
 }
 
 function aplazameHandler (access_token, is_sandbox) {
-
   const apz = {}
 
   ;['get', 'delete'].forEach(method => {
     apz[method] = (path, options) => {
-      options = options || {}
-      options.url = joinPaths.apply(null, [APLAZAME_API_ORIGIN].concat(path)),
-      options.method = method
-      options.access_token = access_token
-      options.is_sandbox = is_sandbox
-      return makeRequest(options).then( (res) => res.data )
+      return makeRequest({
+        ...options,
+        url: joinPaths.apply(null, [APLAZAME_API_ORIGIN].concat(path)),
+        method,
+        access_token,
+        is_sandbox,
+      })
+        .then( (res) => res.data )
     }
   })
   
   ;['post', 'put', 'patch'].forEach(method => {
-    apz[method] = (path, data, options) => {
-      options = options || {}
-      options.url = joinPaths.apply(null, [APLAZAME_API_ORIGIN].concat(path)),
-      options.json = data
-      options.method = method
-      options.access_token = access_token
-      options.is_sandbox = is_sandbox
-      return makeRequest(options).then( (res) => res.data )
+    apz[method] = (path, json, options) => {
+      return makeRequest({
+        ...options,
+        url: joinPaths.apply(null, [APLAZAME_API_ORIGIN].concat(path)),
+        json,
+        method,
+        access_token,
+        is_sandbox,
+      })
+        .then( (res) => res.data )
     }
   })
 
