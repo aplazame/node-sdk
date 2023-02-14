@@ -1,0 +1,28 @@
+{
+  "name": "@aplazame/iframe",
+  "version": "0.0.2",
+  "description": "",
+  "main": "index.js",
+  "module": "aplazame-iframe.mjs",
+  "scripts": {
+    "build": "esbuild ./*.*js --outdir='./dist/'",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aplazame/js-sdk.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aplazame/js-sdk/issues"
+  },
+  "homepage": "https://github.com/aplazame/js-sdk#readme",
+  "dependencies": {
+    "@aplazame/helpers": "^0.0.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.17.8"
+  }
+}

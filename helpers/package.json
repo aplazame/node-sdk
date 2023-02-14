@@ -1,0 +1,25 @@
+{
+  "name": "@aplazame/helpers",
+  "version": "0.0.2",
+  "description": "",
+  "main": "index.js",
+  "module": "index.mjs",
+  "scripts": {
+    "build": "esbuild ./*.*js --outdir='./dist/'",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aplazame/js-sdk.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aplazame/js-sdk/issues"
+  },
+  "homepage": "https://github.com/aplazame/js-sdk#readme",
+  "devDependencies": {
+    "esbuild": "^0.17.8"
+  }
+}

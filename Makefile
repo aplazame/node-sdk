@@ -16,6 +16,12 @@ endif
 node_modules:
 	npm install
 
+build:
+	npm run -ws build
+
+npm.version:
+	npm version -ws ${NPM_VERSION}
+
 dev: node_modules
 	node example/server.js
 
