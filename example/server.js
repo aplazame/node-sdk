@@ -5,24 +5,25 @@ const fs = require('fs'),
 const _readFile = promisify(fs.readFile)
 
 const express = require('express'),
-      ngrok = require('ngrok'),
+      localtunnel = require('localtunnel'),
       ejs = require('ejs'),
       doConfirmation = require('./do-confirmation')
 
 const app = express(),
       index_html = fs.readFileSync('example/index.ejs', 'utf8')
 
-const aplazameSDK = require('../sdk')
-const APZ = aplazameSDK({
-        access_token: process.env.APLAZAME_PRIVATE_KEY,
-        is_sandbox: true,
-      })
-
 const {
   APLAZAME_JS_URL = 'https://cdn.aplazame.com/aplazame.js',
   APLAZAME_PUBLIC_KEY,
   APLAZAME_PRIVATE_KEY,
+  LOCALTUNNEL_SUBDOMAIN = null,
 } = process.env
+
+const aplazameSDK = require('../sdk')
+const APZ = aplazameSDK({
+    access_token: APLAZAME_PRIVATE_KEY,
+    is_sandbox: true,
+  })
 
 console.log('APLAZAME_PUBLIC_KEY', APLAZAME_PUBLIC_KEY)
 console.log('APLAZAME_PRIVATE_KEY', APLAZAME_PRIVATE_KEY)
@@ -38,24 +39,34 @@ app.get('/', function (req, res) {
   }) )
 })
 
-var ngrok_url = null
+var public_url = null
+const headers = {
+  'Bypass-Tunnel-Reminder': 'cheers from Aplazame',
+}
 
 app.get('/checkout/order', async (req, res) => {
+  console.log('GET /checkout/order')
+  
   var checkout_data = JSON.parse( await _readFile('example/checkout.json', 'utf8') )
-
   checkout_data.order.id = 'order_' + Date.now()
-  checkout_data.merchant.notification_url = ngrok_url + '/checkout/confirm'
+  checkout_data.merchant.notification_url = public_url + '/checkout/confirm'
 
-  const order = await APZ.post('/checkout', checkout_data )
+  console.log('example/checkout.json', checkout_data)
 
-  console.log('order created', order)
-  res.json( order.id )
+  try{
+    const order = await APZ.post('/checkout', checkout_data)
+
+    console.log('order created', order)
+    res.json(order.id)
+  } catch (err) {
+    console.error(err)
+  }
 })
 
 app.post('/checkout/confirm', async (req, res) => {
   console.log('\nPOST /checkout/confirm\n', req.originalUrl, '\n', req.body)
 
-  if( APLAZAME_PRIVATE_KEY !== req.query.access_token ) {
+  if( req.query.access_token !== APLAZAME_PRIVATE_KEY ) {
     return res.status(403).end()
   }
 
@@ -72,10 +83,21 @@ app.post('/checkout/confirm', async (req, res) => {
   }
 })
 
-ngrok.connect(3001)
-  .then(function (_ngrok_url) {
-    ngrok_url = _ngrok_url
-    app.listen(3001, function () {
-      console.log('Example app listening on:', _ngrok_url)
+localtunnel({
+  port: 3001,
+  ...LOCALTUNNEL_SUBDOMAIN && { subdomain: LOCALTUNNEL_SUBDOMAIN },
+})
+  .then(({ url }) => {
+    public_url = url
+
+    app.listen(3001, () => {
+      console.log(`\nExample app listening on:\n${url}\n`)
+
+      require('child_process')
+        .exec(
+          process.platform
+          .replace('darwin','')
+          .replace(/win32|linux/,'xdg-') + 'open http://localhost:3001'
+        );
     })
   })

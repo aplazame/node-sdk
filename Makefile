@@ -13,11 +13,13 @@ ifndef NPM_VERSION
   export NPM_VERSION=patch
 endif
 
-node_modules:
-	npm install
+node_modules:; npm install
+install:; npm install
+i: install
 
-dev: node_modules
-	node example/server.js
+dev: up
+up: node_modules
+	node --trace-warnings example/server.js
 
 npm.publish:
 	git pull origin $(git_branch) --tags
